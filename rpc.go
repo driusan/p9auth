@@ -1,4 +1,4 @@
-package libauth
+package p9auth
 
 import (
 	"bytes"
@@ -9,9 +9,12 @@ import (
 )
 
 type AuthRpc struct {
+	// The connection over which AuthRpc communicates
 	F   io.ReadWriteCloser
 	Arg []byte
-	Ai  *AuthInfo
+
+	// AuthInfo structure returned by rpc.GetInfo
+	Ai *AuthInfo
 }
 
 type AuthInfo struct {
@@ -87,6 +90,11 @@ func convM2AI(buf []byte) *AuthInfo {
 	return ai
 }
 
+// Populates rpc.Ai on this RPC structure.
+//
+// This is should only used by other routines in this
+// library while communicating to factotum, but is exposed
+// publicly to mirror auth(2).
 func (rpc *AuthRpc) GetInfo() error {
 	if r, msg := rpc.Rpc("authinfo", ""); r != ARok {
 		return errors.New(msg)
@@ -213,6 +221,14 @@ func OpenRPC() (io.ReadWriteCloser, error) {
 	return openRPC()
 }
 
+// Implements auth_proxy from auth(2).
+//
+// Proxy proxies an authentication conversation between a remote
+// server reading and writing rw and a factotum file.
+//
+// Format and a specify a key template (see factotum(4)) specifying
+// the key to use. The template must specify at least the protocol
+// (proto=xxx) and the role (either role=client or role=server).
 func Proxy(rw io.ReadWriter, format string, a ...interface{}) (*AuthInfo, error) {
 	f, err := openRPC()
 	if err != nil {

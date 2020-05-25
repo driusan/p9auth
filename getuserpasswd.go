@@ -1,4 +1,4 @@
-package libauth
+package p9auth
 
 import (
 	"bufio"
@@ -11,11 +11,15 @@ import (
 	"strings"
 )
 
+// Represents a user/password pair as retrieved from
+// Getuserpasswd
 type UserPasswd struct {
 	User, Password string
 }
 
-// Get a password. params i.e. proto=pass service=ssh role=client server=%s user=%s
+// Get a simple password via factotum.
+//
+// params is the keyspec i.e. proto=pass service=ssh role=client server=%s user=%s
 func Getuserpasswd(params string, args ...interface{}) (*UserPasswd, error) {
 	var buf [4096]byte
 	f, e := openRPC()
@@ -121,8 +125,4 @@ func Listkeys() ([]rsa.PublicKey, error) {
 	}
 
 	return keys, nil
-}
-
-// Get a private key. params i.e. proto=rsa service=ssh role=client
-func Getkey(params string, args ...interface{}) {
 }

@@ -1,4 +1,4 @@
-package libauth
+package p9auth
 
 import (
 	"testing"

@@ -1,6 +1,6 @@
 // +build !plan9
 
-package libauth
+package p9auth
 
 import (
 	"io"
